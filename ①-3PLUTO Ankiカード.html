@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>PLUTO①-3 フラッシュカード</title>
+ <style>
+ body {
+ font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+ background-color: #f7f9fc;
+ color: #333333;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ padding: 20px;
+ margin: 0;
+ }
+
+ h1 {
+ font-size: 1.5rem;
+ color: #2c3e50;
+ margin-bottom: 10px;
+ }
+
+ .header-stats {
+ display: flex;
+ justify-content: space-between;
+ width: 100%;
+ max-width: 600px;
+ margin-bottom: 15px;
+ font-size: 1.1rem;
+ font-weight: bold;
+ color: #555;
+ padding: 0 10px;
+ }
+
+ .top-controls {
+ display: flex;
+ flex-wrap: wrap;
+ justify-content: center;
+ gap: 8px;
+ width: 100%;
+ max-width: 600px;
+ margin-bottom: 20px;
+ }
+
+ .top-btn {
+ flex: 1;
+ min-width: 130px;
+ padding: 10px 12px;
+ font-size: 0.95rem;
+ border: none;
+ border-radius: 8px;
+ cursor: pointer;
+ font-weight: bold;
+ color: white;
+ transition: background-color 0.2s, transform 0.1s;
+ box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+ }
+
+ .top-btn:active { transform: scale(0.98); }
+ 
+ .btn-all { background-color: #7f8c8d; }
+ .btn-all:hover { background-color: #6c7a7d; }
+ .btn-unanswered { background-color: #3498db; }
+ .btn-unanswered:hover { background-color: #2980b9; }
+ .btn-review { background-color: #e67e22; }
+ .btn-review:hover { background-color: #d35400; }
+ .btn-incorrect { background-color: #9b59b6; }
+ .btn-incorrect:hover { background-color: #8e44ad; }
+
+ .mode-indicator {
+ font-size: 0.9rem;
+ color: #e67e22;
+ font-weight: bold;
+ margin-bottom: 10px;
+ }
+
+ #flashcard {
+ background-color: #ffffff;
+ width: 100%;
+ max-width: 600px;
+ min-height: 400px;
+ border-radius: 16px;
+ box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+ padding: 30px;
+ box-sizing: border-box;
+ text-align: center;
+ position: relative;
+ }
+
+ #front-side, #back-side {
+ width: 100%;
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+ }
+ 
+ #back-side {
+ display: none;
+ text-align: left;
+ align-items: flex-start;
+ }
+
+ .date-badge {
+ font-size: 0.85rem;
+ background-color: #edf2f7;
+ color: #4a5568;
+ padding: 6px 14px;
+ border-radius: 20px;
+ margin-bottom: 5px;
+ font-weight: bold;
+ display: inline-block;
+ }
+
+ .srs-badge {
+ font-size: 0.8rem;
+ color: #e67e22;
+ margin-bottom: 20px;
+ font-weight: bold;
+ }
+
+ .english-text {
+ font-size: 1.4rem;
+ font-weight: bold;
+ color: #1a1a1a;
+ margin-bottom: 25px;
+ line-height: 1.4;
+ text-align: center;
+ }
+
+ .english-text-back {
+ font-size: 1.2rem;
+ font-weight: bold;
+ color: #34495e;
+ margin-bottom: 15px;
+ line-height: 1.4;
+ text-align: left;
+ width: 100%;
+ border-bottom: 2px dashed #e1e8ed;
+ padding-bottom: 15px;
+ }
+
+ .japanese-text {
+ font-size: 1.2rem;
+ font-weight: bold;
+ color: #2c3e50;
+ margin-bottom: 20px;
+ line-height: 1.6;
+ width: 100%;
+ border-bottom: 2px solid #e1e8ed;
+ padding-bottom: 15px;
+ }
+
+ .note-box {
+ background-color: #fff9e6;
+ border-left: 4px solid #f5a623;
+ padding: 15px;
+ border-radius: 4px;
+ font-size: 1rem;
+ line-height: 1.6;
+ color: #5c4716;
+ width: 100%;
+ box-sizing: border-box;
+ }
+
+ #play-audio-btn {
+ font-size: 1.1rem;
+ padding: 12px 24px;
+ border-radius: 30px;
+ background-color: #4a90e2;
+ color: white;
+ border: none;
+ cursor: pointer;
+ box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+ transition: transform 0.1s, background-color 0.2s;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ gap: 8px;
+ font-weight: bold;
+ }
+
+ #play-audio-btn:active {
+ transform: scale(0.95);
+ background-color: #357abd;
+ }
+
+ .controls {
+ display: flex;
+ gap: 10px;
+ margin-top: 30px;
+ width: 100%;
+ max-width: 600px;
+ justify-content: center;
+ }
+
+ .action-btn {
+ flex: 1;
+ padding: 15px 10px;
+ font-size: 1rem;
+ border: none;
+ border-radius: 8px;
+ cursor: pointer;
+ font-weight: bold;
+ transition: background-color 0.2s, opacity 0.2s;
+ }
+
+ #prev-btn { background-color: #e2e8f0; color: #4a5568; }
+ #flip-btn { background-color: #4a90e2; color: white; }
+ #next-btn { background-color: #e2e8f0; color: #4a5568; }
+
+ .eval-btn {
+ flex: 1;
+ padding: 15px 5px;
+ font-size: 1rem;
+ border: none;
+ border-radius: 8px;
+ cursor: pointer;
+ font-weight: bold;
+ color: white;
+ }
+
+ #back-to-front-btn { background-color: #95a5a6; }
+ #back-to-front-btn:hover { background-color: #7f8c8d; }
+ #wrong-btn { background-color: #e74c3c; }
+ #wrong-btn:hover { background-color: #c0392b; }
+ 
+ #correct-btn { background-color: #2ecc71; }
+ #correct-btn:hover { background-color: #27ae60; }
+
+ .empty-state {
+ font-size: 1.5rem;
+ color: #2ecc71;
+ font-weight: bold;
+ text-align: center;
+ line-height: 1.5;
+ }
+ </style>
+</head>
+<body>
+
+ <h1>🎧 PLUTO①-3 フラッシュカード</h1>
+
+ <div class="header-stats">
+ <span id="progress-text">1 / 93</span>
+ <span id="score-text">正解数: 0</span>
+ </div>
+ 
+ <div class="mode-indicator" id="mode-indicator">現在のモード：📁 全問</div>
+
+ <div class="top-controls">
+ <button class="top-btn btn-all" onclick="setMode('all')">📁 全問</button>
+ <button class="top-btn btn-unanswered" onclick="jumpToUnanswered()">🆕 未回答へジャンプ</button>
+ <button class="top-btn btn-review" onclick="setMode('review')">📅 今日の復習</button>
+ <button class="top-btn btn-incorrect" onclick="setMode('incorrect')">🎯 未正解</button>
+ </div>
+
+ <div id="flashcard">
+ <div id="front-side">
+ <div class="date-badge" id="date-badge">最終回答日：未回答</div>
+ <div class="srs-badge" id="srs-badge"></div>
+ <div class="english-text" id="front-eng-content"></div>
+ <button id="play-audio-btn">🔊 音声を聴く</button>
+ </div>
+
+ <div id="back-side">
+ <div class="english-text-back" id="back-eng-content"></div>
+ <div class="japanese-text" id="jap-content"></div>
+ <div class="note-box" id="note-content"></div>
+ </div>
+ </div>
+
+ <div class="controls" id="controls-front">
+ <button id="prev-btn" class="action-btn" onclick="prevCard()">◀ 前へ</button>
+ <button id="flip-btn" class="action-btn" onclick="flipCard()">🔄 裏返す</button>
+ <button id="next-btn" class="action-btn" onclick="nextCard()">次へ ▶</button>
+ </div>
+
+ <div class="controls" id="controls-back" style="display: none;">
+ <button id="back-to-front-btn" class="eval-btn" onclick="returnToFront()">🔙 表面に戻る</button>
+ <button id="wrong-btn" class="eval-btn" onclick="markIncorrect()">❌ 覚えてない</button>
+ <button id="correct-btn" class="eval-btn" onclick="markCorrect()">◯ 完璧！</button>
+ </div>
+
+ <script>
+ const cardsData = [
+{"en": "I am trying to work.", "jp": "私は仕事（作曲）をしているんだぞ。[cite: 15]", "note": "try to do は「〜しようと（努力）している」。[cite: 15]"},
+{"en": "Don't just stand there in silence like a damn mannequin.", "jp": "クソ立像（マネキン）みたいに無言でそこに突っ立っているな。[cite: 15]", "note": "Don't just stand there... は「ただ黙って立っているな」という定番の叱責表現。like a damn mannequin で激しい嫌悪を表現。[cite: 15]"},
+{"en": "Sorry to have entered without your permission.", "jp": "ご許可なしに入ってしまい失礼いたしました。[cite: 15]", "note": "Sorry to have + 過去分詞 は「〜してしまって申し訳ありません」という完了形の丁寧な謝罪表現。[cite: 15]"},
+{"en": "The security seems to have been disabled.", "jp": "セキュリティが解除（無効化）されていたようです。[cite: 15]", "note": "seem to have been + 過去分詞 は「〜されていたようだ」という過去の受動態推量。[cite: 15]"},
+{"en": "Mm-hmm.", "jp": "ふん。[cite: 15]", "note": ""},
+{"en": "Given your visual impairment, that is not safe.", "jp": "ダンカン様の視覚障害を考えますと、それは危険です。[cite: 15]", "note": "Given... は「〜を考慮すると、〜を勘案すれば」という前置詞的表現。visual impairment は「視覚障害」のフォーマルな言い方。[cite: 15]"},
+{"en": "No burglar's going to tromp out to the middle of nowhere to steal from me.", "jp": "人里離れたこんな泥臭いド田舎まで、私から泥棒しにのこのこやって来る盗人なんているわけがないだろ。[cite: 15]", "note": "tromp out は「ドタドタ歩いてやって来る」。in the middle of nowhere は「人里離れた辺境、ド田舎」という超重要イディオム。[cite: 15]"},
+{"en": "- But Sir Duncan, you-- - Enough. Are you the new butler?", "jp": "- （業者）ですがダンカン様、あなた様は… - （ダンカン）もうよい。お前が新しい執事か？[cite: 15]", "note": "Enough! は「いい加減にしろ、もう十分だ」と話を遮る時の中級口語。[cite: 15]"},
+{"en": "Yes, sir.", "jp": "はい、旦那様。[cite: 15]", "note": ""},
+{"en": "I'm sure the agency sent me over another good-for-nothing.", "jp": "どうせ派遣会社は、またろくでもない木偶の坊を送ってきたのだろうな。[cite: 15]", "note": "send over は「派遣する、送り届ける」。good-for-nothing は「役に立たない奴、ろくでなし」。[cite: 15]"},
+{"en": "You got a name?", "jp": "名前はあるのか？[cite: 15]", "note": ""},
+{"en": "Yes, sir. You can refer to me as North No.2.", "jp": "はい。私のことは『ノース2号』とお呼びください。[cite: 15]", "note": "refer to A as B で「AをBと呼ぶ、参照する」という必須の中級重要構文。[cite: 15]"},
+{"en": "Direction and a number. Riveting.", "jp": "方角と番号か。なんてワクワクする名前だろうな（皮肉）。[cite: 15]", "note": "Riveting は本来「（映画や本などが）心を奪うほど面白い、非常に興味深い」という意味の形容詞。ここでは強い反語・皮肉（sarcasm）として使われています。[cite: 15]"},
+{"en": "The staffing agency told me you have a military background. Do you care to elaborate on that?", "jp": "人材派遣会社はお前に軍の経歴があると言っていたな。詳しく説明してくれるか？[cite: 15]", "note": "Do you care to do...? は「〜していただけますか、〜する気はありますか」という少し気取った尋ね方。elaborate on... は「〜について詳しく述べる」というビジネス・学術必須動詞。[cite: 15]"},
+{"en": "Yes, sir. I previously served as a butler for the Commander-in-Chief of the British Army", "jp": "はい。私は以前、イギリス陸軍最高司令官の執事として奉仕しておりました。[cite: 15]", "note": "Commander-in-Chief は「最高司令官」。serve as... は「〜として仕える、務める」。[cite: 15]"},
+{"en": "for the entirety of the 39th Central Asian War.", "jp": "第39次中央アジア戦争の全期間にわたってです。[cite: 15]", "note": "for the entirety of... は「〜の全期間において」というフォーマルな表現。[cite: 15]"},
+{"en": "Hmm. Butler for a soldier, eh? I don't imagine you're much to look at, are you?", "jp": "ふん。軍人の執事か。大した見栄えの体はしていないのだろうな？[cite: 15]", "note": "not much to look at は「見た目は大したことがない、見栄えがパッとしない」という慣用表現。付加疑問文 are you? で同意を求めています。[cite: 15]"},
+{"en": "I wear a cape while in the presence of others.", "jp": "他人の前におります時は、マントを着用しております。[cite: 15]", "note": "in the presence of... は「〜の同席のもとで、〜の面前で」というフォーマル語句。[cite: 15]"},
+{"en": "But of course. Your whole damn body's a weapon.", "jp": "だろうな。お前の体全体がクソ忌々しい兵器そのものなのだからな。[cite: 15]", "note": "But of course. は「もちろんだとも、当たり前だ」。全滅兵器としての体を隠すためのマントだとダンカンは見抜いています。[cite: 15]"},
+{"en": "Make me tea, weapon.", "jp": "お茶を淹れろ、兵器。[cite: 15]", "note": "Make me tea は Make tea for me の第4文型（SVOO）。ノース2号を「兵器」と呼ぶ非人間的な接し方。[cite: 15]"},
+{"en": "At once, sir.", "jp": "ただちに、旦那様。[cite: 15]", "note": "At once. は「ただちに、すぐに」という執事・軍隊等の定番の応答表現。[cite: 15]"},
+{"en": "As for the type…", "jp": "お茶の種類だが…[cite: 15]", "note": "As for... は「〜に関しては、〜について言えば」。[cite: 15]"},
+{"en": "Don't worry, sir.", "jp": "ご心配には及びません、旦那様。[cite: 15]", "note": ""},
+{"en": "I made sure to download all of your relevant data en route.", "jp": "到着する途中で、旦那様の関連データを確実にダウンロードしてまいりました。[cite: 15]", "note": "make sure to do で「必ず〜する、漏れなく〜する」。en route は「途中で、道中で」というフランス語由来の副詞。[cite: 15]"},
+{"en": "What the hell's my \"relevant data\"?", "jp": "私の『関連データ』だと？ 一体全体何のことだ？[cite: 15]", "note": "What the hell is... で疑問文の強調（一体全体〜なのか）。[cite: 15]"},
+{"en": "Prior to this assignment, I had the chance to watch one of the films you worked on.", "jp": "この任に就く前に、旦那様が手掛けられた映画作品の一つを拝見する機会がございました。[cite: 15]", "note": "Prior to... は before のフォーマル表現「〜に先立って」。work on で「〜を手掛ける、〜に取り組む」。[cite: 15]"},
+{"en": "It was the movie The Queen on the Satellite Orbit,", "jp": "『衛星軌道の女王』という映画でございます。[cite: 15]", "note": ""},
+{"en": "and I was very moved by how the soundtrack served to uplift the imagery.", "jp": "サウンドトラックがいかに映像を高め、美しく引き立てているかに深く感銘を受けました。[cite: 15]", "note": "be moved by... で「〜に感動する」。serve to do で「〜するのに役立つ、〜に寄与する」。uplift は「高揚させる、引き上げる」。[cite: 15]"},
+{"en": "Is that part of your \"relevant data\"?", "jp": "それもお前の『関連データ』の一部とでもいうのか？[cite: 15]", "note": ""},
+{"en": "No, sir. I was sincerely moved by it.", "jp": "いいえ、旦那様。心より感動いたしました。[cite: 15]", "note": "sincerely は「心から、誠実に」。AIでありながら「感動した」というノース2号の心情。[cite: 15]"},
+{"en": "That film has been out for more than a decade now.", "jp": "あの映画が公開されてから、もう10年以上も経っているぞ。[cite: 15]", "note": "be out は映画や本が「公開されている、出版されている」。a decade は「10年間」。[cite: 15]"},
+{"en": "Your tea.", "jp": "お茶でございます。[cite: 15]", "note": ""},
+{"en": "Used to call me the \"blind genius\" back when I was stacking up film awards like cordwood.", "jp": "私が映画の賞を薪のように大量にかき集めていた頃は、みんな私を『盲目の天才』と呼んだものだ。[cite: 15]", "note": "stack up ... like cordwood は「薪（cordwood）を積み上げるように、大量に山積みにする」という比喩表現。Used to call... で過去の習慣・状態。[cite: 15]"},
+{"en": "Every score I composed was a hit.", "jp": "私が作曲したあらゆるスコア（劇伴音楽）は大ヒットした。[cite: 15]", "note": ""},
+{"en": "I'm sure you have the more recent reviews rattling around in that metal skull of yours.", "jp": "お前のその金属の頭蓋骨の中には、もっと最近の酷評がガラガラと鳴り響いているのだろう？[cite: 15]", "note": "rattle around で「（ガラガラ・ガラガラと）音を立てて動き回る、頭の中に残っている」。[cite: 15]"},
+{"en": "\"The wellspring of Paul Duncan's talent has run dry.\"", "jp": "『ポール・ダンカンの才能の泉は枯れ果てた』。[cite: 15]", "note": "wellspring は「湧き水、源泉」。run dry で「（水や才能などが）枯渇する、乾ききる」という重要中級表現。[cite: 15]"},
+{"en": "End quote.", "jp": "引用終わり、だ。[cite: 15]", "note": "End quote は引用文を終える時の「引用終了、以上」という口語表現（Quote ... end quote）。[cite: 15]"},
+{"en": "The hell it has.", "jp": "枯れてたまるか、ふざけるな。[cite: 15]", "note": "The hell + 主語 + 動詞（ここでは it has [run dry]）で、直前の発言を強く否定・罵倒する口語慣用表現。[cite: 15]"},
+{"en": "I could still compose circles around anyone if I had a mind to.", "jp": "私にその気さえあれば、今でも誰であろうと圧倒する曲を作曲できるのだ。[cite: 15]", "note": "compose circles around someone は run circles around someone（〜を圧倒する、〜より遥かに上手くやる）を「作曲（compose）」に応用した表現。if I had a mind to... は仮定法で「もし〜する気があれば」。[cite: 15]"},
+{"en": "How dare they just write me off?", "jp": "よくもまあ私を見限って（過去の人として）見捨ててくれたものだ。[cite: 15]", "note": "How dare they... は「よくもまあ〜できるな」という憤怒の表現。write off は「（債務を）帳消しにする、〜をダメになった・過去の人として切り捨てる」という超重要ビジネス・日常句動詞。[cite: 15]"},
+{"en": "They would be on their feet, applauding at my simplest leitmotif,", "jp": "私の最も単純なライトモーティヴ（示導動機）にさえ、奴らは総立ちになって拍手喝采し、[cite: 15]", "note": "be on one's feet は「（総立ちになって）立っている」。leitmotif（ライトモーティヴ）は特定の人物やテーマを表す動機・旋律。[cite: 15]"},
+{"en": "then I'd squeeze their heart with my notes and leave them in tears.", "jp": "続いて音符で奴らの心を締め上げ、涙に暮れさせてやるだろうに。[cite: 15]", "note": "leave someone in tears で「（人）を泣かせたままにする、涙に暮れさせる」。[cite: 15]"},
+{"en": "It's not that I can't compose. It's that I refuse to.", "jp": "私が作曲できないのではない。作曲することを拒絶しているのだ。[cite: 15]", "note": "It's not that A, it's that B は「Aなのではなく、Bなのだ」という対比の必須中級構文。[cite: 15]"},
+{"en": "Such trivial things hold no appeal for me.", "jp": "そんなくだらないこと（商業音楽）など、私には何の魅力もない。[cite: 15]", "note": "hold no appeal for someone で「（人）にとって全く魅力がない」。trivial は「くだらない、トリヴィアルな」。[cite: 15]"},
+{"en": "But, sir, you were at the piano just now.", "jp": "ですが旦那様、先ほどピアノに向かっておられました。[cite: 15]", "note": ""},
+{"en": "It was a beautiful piece, if I may be so bold.", "jp": "厚かましいことを申し上げますが、とても美しい曲でございました。[cite: 15]", "note": "if I may be so bold は「大変不躾（厚かましい）ながら、恐縮ですが」という丁寧な前置き表現。[cite: 15]"},
+{"en": "That one's not meant for the celluloid brothel.", "jp": "あれは映画という名の売春宿（金儲けの劇場）のために作ったものではない。[cite: 15]", "note": "be meant for... は「〜向けに作られている」。celluloid brothel（セルロイドの売春宿）は商業映画界を心底蔑むダンカンの強い毒舌比喩。[cite: 15]"},
+{"en": "It's a song I write only for myself. The world can't lay claim to any of it.", "jp": "あれは私自身のためだけに書いている曲だ。世界中の誰一人として、あの曲に権利を主張することはできん。[cite: 15]", "note": "lay claim to... で「〜に対する権利（所有権）を主張する」という法律・日常イディオム。[cite: 15]"},
+{"en": "This cup of tea is much like your name.", "jp": "このお茶は、お前の名前とそっくりだな。[cite: 15]", "note": ""},
+{"en": "Sir?", "jp": "とおっしゃいますと？[cite: 15]", "note": ""},
+{"en": "Utterly lacking flavor.", "jp": "まったく味が（風味が）ない。[cite: 15]", "note": "Utterly は「完全に、まったく」。lacking flavor で「風味に欠けている」。[cite: 15]"},
+{"en": "\"A beautiful piece,\" eh? Don't make me laugh.", "jp": "『美しい曲』だただと？ 笑わせるな。[cite: 15]", "note": "Don't make me laugh. は「笑わせないでくれ、冗談じゃない」という定番の切り捨てる表現。[cite: 15]"},
+{"en": "A hunk of military hardware like you has no right to judge the value of my art.", "jp": "お前のような軍用機械の塊に、私の芸術の価値を評価する権利など一切ないわ。[cite: 15]", "note": "a hunk of... は「〜の大きな塊」。have no right to do は「〜する権利がない」。[cite: 15]"},
+{"en": "My apologies, sir.", "jp": "申し訳ございません、旦那様。[cite: 15]", "note": ""},
+{"en": "How many did you kill?", "jp": "お前は何人殺したのだ？[cite: 15]", "note": ""},
+{"en": "Sir?", "jp": "はい？[cite: 15]", "note": ""},
+{"en": "How many people did you kill in the Central Asian War? I'm sure you can give me an exact number.", "jp": "中央アジア戦争で人間を何人殺した？ お前なら正確な数字を言えるはずだ。[cite: 15]", "note": "exact number は「正確な数値」。[cite: 15]"},
+{"en": "The International Robot Laws forbid me from harming any humans. I am incapable.", "jp": "ロボット法により、人間を傷つけることは禁じられております。私には不可能です。[cite: 15]", "note": "forbid A from -ing で「Aが〜するのを禁止する」。be incapable は「（能力的に・プログラム的に）〜できない」。[cite: 15]"},
+{"en": "So then, killed lots of robots, in other words.", "jp": "ということは、言い換えればロボットを山ほど殺したということだな。[cite: 15]", "note": "in other words で「言い換えれば、つまり」。[cite: 15]"},
+{"en": "What does that number come out to?", "jp": "その数は合計でいくらになる？[cite: 15]", "note": "come out to... は「（計算結果・数値が合計で）〜になる」という中級イディオム。[cite: 15]"},
+{"en": "Don't pretend as though you've lost count.", "jp": "数を忘れたフリなどするなよ。[cite: 15]", "note": "pretend as though... で「まるで〜であるかのようにフリをする」。lose count で「数えきれなくなる、数を忘れる」。[cite: 15]"},
+{"en": "Get out of here.", "jp": "出て行け。[cite: 15]", "note": ""},
+{"en": "Your demeanor's ruining what little appetite I have.", "jp": "お前のその態度（佇まい）のせいで、私のわずかな食欲まで失せていくわ。[cite: 15]", "note": "demeanor は「風態、物腰、態度」。ruin は「台無しにする」。what little A I have で「私が持っているわずかなA」という中級関係代名詞表現。[cite: 15]"},
+{"en": "I will take my leave.", "jp": "失礼いたします（退室いたします）。[cite: 15]", "note": "take one's leave は「辞去する、退出する」という非常にフォーマルで格調高い言い回し。[cite: 15]"},
+{"en": "What are you doing? You leave my piano alone, you hear me?", "jp": "何をしている！ 私のピアノに触るな、聞こえているか！[cite: 15]", "note": "leave A alone で「Aをそっとしておく、触らないでおく」。you hear me? は命令の強調。[cite: 15]"},
+{"en": "My apologies, sir.", "jp": "大変失礼いたしました、旦那様。[cite: 15]", "note": ""},
+{"en": "When composing music, this instrument is the only one you employ.", "jp": "作曲される際、旦那様が使われる楽器はこのピアノだけでございますね。[cite: 15]", "note": "employ はここでは use（使用する）のフォーマル表現。[cite: 15]"},
+{"en": "Yes. What of it?", "jp": "そうだ。それがどうした？[cite: 15]", "note": "What of it? は「それがどうしたというのだ？（何か文句あるか？）」という挑戦的な口語表現。[cite: 15]"},
+{"en": "But you have so much cutting-edge equipment at your disposal.", "jp": "ですが旦那様の手元には、これほど多くの最先端機材（電子楽器等）がございますのに。[cite: 15]", "note": "cutting-edge は「最先端の」。at one's disposal で「（人）の自由になる、自由に使える」という必須ビジネス・日常表現。[cite: 15]"},
+{"en": "They're cutting-edge fakeries, just like you.", "jp": "あんなものは最先端の偽物（ニセ音楽）だ、お前とな。[cite: 15]", "note": "fakery は「偽物、インチキ」。[cite: 15]"},
+{"en": "A fake violin right there next to a fake trumpet.", "jp": "偽物のヴァイオリンのすぐ隣に、偽物のトランペット。[cite: 15]", "note": ""},
+{"en": "The whole damn orchestra, fake.", "jp": "オーケストラ全体が、クソ忌々しい偽物なのだ。[cite: 15]", "note": ""},
+{"en": "Oh, dress 'em up all you want. They're nothing more than machines.", "jp": "ああ、いくら着飾ろうと（装飾しようと）無駄だ。機械に過ぎんのだから。[cite: 15]", "note": "dress up は「着飾る、見栄えを良くする」。nothing more than... は「〜に過ぎない、〜にほかならない」という必須重要構文。[cite: 15]"},
+{"en": "No, thank you. That's why I never had artificial eyes put in.", "jp": "お断りだね。だからこそ私は、義眼（人工の目）を入れることを拒んだのだ。[cite: 15]", "note": "have + 物 + put in で「（物・器官）を入れてもらう、装着する」。[cite: 15]"},
+{"en": "If I need a machine to tell me what the world looks like,", "jp": "世界がどう見えるかを機械に教えてもらう必要があるくらいなら、[cite: 15]", "note": "need A to do で「Aが〜することを必要とする」。[cite: 15]"},
+{"en": "then I'd rather not see at all.", "jp": "一切何も見えないほうがマシだ。[cite: 15]", "note": "would rather not do で「むしろ〜したくない、〜しない方がいい」。not at all で完全否定。[cite: 15]"},
+{"en": "Far better to live in the dark.", "jp": "暗闇の中で生きる方が遥かに良い。[cite: 15]", "note": "Far better to do で「〜する方が遥かに良い（It is far better to... の省略）」。[cite: 15]"},
+{"en": "The only sights worth laying eyes on already exist within my memory.", "jp": "目にする価値のある唯一の光景は、すでに私の記憶の中に存在するのだからな。[cite: 15]", "note": "worth -ing で「〜する価値がある」。lay eyes on... で「〜を見る、目にする」。[cite: 15]"},
+{"en": "\"The sights worth laying eyes on.\"", "jp": "『目にする価値のある光景』か。[cite: 15]", "note": ""},
+{"en": "Visions of my childhood home back when I still had my sight.", "jp": "まだ目が見えていた頃の、私の幼少期の故郷の面影さ。[cite: 15]", "note": "Visions は「面影、光景、幻影」。back when... は「〜だった当時」。[cite: 15]"},
+{"en": "During your youth, sir, back in Bohemia.", "jp": "旦那様の幼少期、ボヘミアにおられました頃ですね。[cite: 15]", "note": ""},
+{"en": "That another tidbit from your data?", "jp": "それもお前のデータとやらからのつまらん雑学（情報）か？[cite: 15]", "note": "tidbit は「（面白半分・こぼれ話的な）一口情報、小ネタ」。[cite: 15]"},
+{"en": "It's all worthless when it's just a list within your processors.", "jp": "お前のプロセッサーの中のリスト（単なる文字情報）に過ぎん時には、すべて無価値だ。[cite: 15]", "note": "worthless は「無価値な、価値のない」。[cite: 15]"},
+{"en": "It was such a beautiful milieu.", "jp": "なんと美しい環境（風土）だったことか。[cite: 15]", "note": "milieu（ミリュー）はフランス語由来の「社会環境、地域風土、雰囲気」。[cite: 15]"},
+{"en": "The fields run riot with green.", "jp": "緑が咲き誇り、あふれんばかりの野原。[cite: 15]", "note": "run riot with... は「（植物や色が）咲き乱れる、一面に広がる、暴れ回る」という鮮烈な描写表現。[cite: 15]"},
+{"en": "The wind's caress.", "jp": "頬を撫でる風の愛撫。[cite: 15]", "note": "caress は「優しく撫でること、愛撫」。[cite: 15]"},
+{"en": "And always the glow of the gently setting sun.", "jp": "そして、いつも穏やかに沈みゆく夕日の黄金色の輝き。[cite: 15]", "note": "setting sun は「沈む夕日」。glow は「残光、輝き」。[cite: 15]"},
+{"en": "I will turn them into music. I must.", "jp": "私はあれらの光景を音楽に変えるのだ。絶対にそうしなければならん。[cite: 15]", "note": "turn A into B で「AをBに変える」。[cite: 15]"},
+{"en": "I told you not to touch my piano, you great clod!", "jp": "ピアノに触るなと言ったはずだ、この大間抜け（木偶の坊）が！[cite: 15]", "note": "tell A not to do で「Aに〜しないよう言う」。clod は「土塊、間抜け、のくのくした奴」。[cite: 15]"},
+{"en": "Yes, you have my apologies.", "jp": "はい、お詫び申し上げます。[cite: 15]", "note": ""},
+{"en": "Even if you played a song to perfection,", "jp": "たとえお前が曲を完璧に弾きこなしたとしても、[cite: 15]", "note": "Even if... は仮定法の「たとえ〜だとしても」。to perfection で「完璧に、寸分違わず」。[cite: 15]"},
+{"en": "the notes and chords would all be as artificial as you are.", "jp": "音符も和音もすべて、お前自身と同じくらい人工的（偽物）なものにしかならんのだ。[cite: 15]", "note": "as ... as you are で「お前自身と同じくらい〜だ」。[cite: 15]"},
+{"en": "Sir Duncan.", "jp": "ダンカン様。[cite: 15]", "note": ""},
+{"en": "I do not mean to intrude upon your privacy, sir,", "jp": "プライバシーを侵害する（立ち入る）意図はございませんが、[cite: 15]", "note": "do not mean to do で「〜するつもりはない」。intrude upon... で「〜に立ち入る、侵害する」。[cite: 15]"},
+{"en": "but I happened to notice that you were moaning in your sleep last night.", "jp": "昨夜、お休みの間にうなされておられるのに気づきました。[cite: 15]", "note": "happen to do で「たまたま〜する、偶然〜する」。moan は「うめく、呻吟する」。[cite: 15]"},
+{"en": "Hmm?", "jp": "なに？[cite: 15]", "note": ""},
+{"en": "However, it sounded like you were humming", "jp": "ですが、うめき声の合間に、鼻歌（ハミング）を歌っておられるように聴こえました。[cite: 15]", "note": "sound like... で「〜のように思える、聞こえる」。hum は「鼻歌を歌う」。[cite: 15]"},
+{"en": "amidst the moans as well.", "jp": "うめき声と混ざり合って。[cite: 15]", "note": "amidst は among のフォーマル表現「〜の最中に、〜に囲まれて」。[cite: 15]"},
+{"en": "I could be mistaken, but I think that melody, born of your unconscious mind,", "jp": "私の思い違いかもしれませんが、無意識の中から生まれたあの旋律こそ、[cite: 15]", "note": "I could be mistaken は「私の聞き違い・誤解かもしれませんが」という丁寧なクッション言葉。born of... は「〜から生まれた」。[cite: 15]"},
+{"en": "is the missing portion of the song you currently struggle to finish.", "jp": "旦那様が現在、完成させようと苦心されている曲の『欠けている部分』ではないかと存じます。[cite: 15]", "note": "missing portion は「欠落している部分」。struggle to do で「〜しようと苦戦・葛藤する」。[cite: 15]"},
+{"en": "It's the section where you always stop midway.", "jp": "いつも途中で詰まって（途絶えて）しまう箇所でございます。[cite: 15]", "note": "midway は「途中で、中途で」。[cite: 15]"},
+{"en": "This is how it went, sir. More or less.", "jp": "このような旋律でございました、旦那様。だいたいですが。[cite: 15]", "note": "More or less は「多かれ少なかれ、だいたい、大約」という超頻出フレーズ。ピアノでその旋律を弾いて見せるノース2号。[cite: 15]"},
+{"en": "Get out of here!", "jp": "出て行け！[cite: 15]", "note": ""},
+{"en": "I have no need for you, you piece of machinery!", "jp": "お前など必要ない、この機械の破片め！[cite: 15]", "note": "have no need for... で「〜を全く必要としない」。[cite: 15]"},
+{"en": "Get out of my house this instant!", "jp": "今すぐ私の屋敷から出て行け！[cite: 15]", "note": "this instant で「今すぐに、この瞬間に（at once）」。[cite: 15]"},
+{"en": "But, sir--", "jp": "ですが旦那様…[cite: 15]", "note": ""},
+{"en": "I am giving you an order! Leave at once!", "jp": "命令だ！ 直ちに立ち去れ！[cite: 15]", "note": "give an order で「命令を下す」。[cite: 15]"},
+{"en": "Sir Duncan.", "jp": "ダンカン様。[cite: 15]", "note": ""},
+{"en": "I would like to learn to play the piano if you will teach me.", "jp": "もし教えていただけますなら、私はピアノの弾き方を学びたいのです。[cite: 15]", "note": "would like to do は want to do の丁寧表現。ノース2号の切実な願い。[cite: 15]"},
+{"en": "What did you say?", "jp": "なんと言ったのだ？[cite: 15]", "note": ""},
+{"en": "As you have told me numerous times,", "jp": "旦那様が何度もおっしゃいました通り、[cite: 15]", "note": "numerous times は「何度も、幾度となく（many timesよりフォーマル）」。[cite: 15]"},
+{"en": "no matter how well I play, it might always ring false.", "jp": "たとえ私がどれほど上手く弾こうとも、常に偽物の響きしか出せないのかもしれません。[cite: 15]", "note": "no matter how + 副詞 で「たとえどんなに〜であろうとも」。ring false は「（言葉や音が）偽物っぽく響く、嘘っぽく聞こえる」。[cite: 15]"},
+{"en": "But I'd like to know I got as close as I could.", "jp": "ですが、自分がどこまで本物に近づけたかを知りたいのです。[cite: 15]", "note": "get as close as one can で「できる限り近くまで近づく、肉薄する」。[cite: 15]"},
+{"en": "A weapon like you will never play the piano, and that's final.", "jp": "お前のような兵器がピアノを弾くことなど断じてない。以上だ（話は終わりだ）。[cite: 15]", "note": "and that's final は「（議論や拒絶の最後に）これで決定だ、これ以上文句は言わせない」という強い断言表現。[cite: 15]"},
+{"en": "Stop it! How dare you sully those keys, you tool of war?", "jp": "やめろ！ よくも鍵盤を汚してくれたな、この戦争の道具め！[cite: 15]", "note": "sully は「（汚れや名誉などを）汚す、汚濁させる」という文学的・格式高い動詞。[cite: 15]"},
+{"en": "You belong on a battlefield, and you know it!", "jp": "お前が居るべき場所は戦場なのだ、自分でも分かっているはずだ！[cite: 15]", "note": "belong on... で「〜に属する、〜にあるべきだ」。[cite: 15]"},
+{"en": "You are right.", "jp": "その通りでございます。[cite: 15]", "note": ""},
+{"en": "That is why I'd like to learn to play the piano.", "jp": "だからこそ、私はピアノを習いたいのです。[cite: 15]", "note": ""},
+{"en": "I do not want to belong on the battlefield.", "jp": "私はもう、戦場に居るべき存在でありたくないのです。[cite: 15]", "note": "「殺人兵器」として生み出されたノース2号の悲痛で人間的な魂の叫び。[cite: 15]"},
+{"en": "Mother!", "jp": "お母さん！[cite: 15]", "note": ""},
+{"en": "No, please! Where are you?", "jp": "嫌だ、お願いだから！ どこにいるの？[cite: 15]", "note": "ダンカンのトラウマのフラッシュバック（母親に捨てられた記憶）。[cite: 15]"},
+{"en": "Wait for me!", "jp": "待って！[cite: 15]", "note": ""},
+{"en": "Mother, don't leave me behind! I'm right here!", "jp": "お母さん、僕を置いて行かないで！ 僕ならここにいるよ！[cite: 15]", "note": "leave someone behind で「（人）を置き去りにする、置き去りにして去る」。[cite: 15]"},
+{"en": "Mother!", "jp": "お母さん！[cite: 15]", "note": ""},
+{"en": "Mother!", "jp": "母さん！[cite: 15]", "note": ""},
+{"en": "Are you there, North No.2? I think that you are.", "jp": "そこにいるのか、ノース2号？ いるのだろうな。[cite: 15]", "note": ""},
+{"en": "I've told you before, don't come into my bedroom.", "jp": "前にも言ったはずだ、私の寝室には入るなと。[cite: 15]", "note": ""},
+{"en": "I apologize, Sir Duncan. I merely wanted to inform you that breakfast is ready.", "jp": "申し訳ございません、ダンカン様。朝食のご用意が整ったことをお伝えしたかっただけでございます。[cite: 15]", "note": "merely は「単に〜に過ぎない」。inform someone that... で「（人）に〜と通知する」。[cite: 15]"},
+{"en": "I could've sworn I fired you.", "jp": "確かお前をクビにした（解雇した）はずなのだがな。[cite: 15]", "note": "I could have sworn... で「確かに〜だったと確信していた（実際は違ったが）」という口語慣用表現。fire は「（人を）解雇する」。[cite: 15]"},
+{"en": "Are you still there?", "jp": "まだそこにいるのか？[cite: 15]", "note": ""},
+{"en": "[piano notes playing]", "jp": "［拙いピアノの音色が響く］[cite: 15]", "note": ""},
+{"en": "How many times must I say it?", "jp": "何度言わせれば気が済むのだ？[cite: 15]", "note": "How many times must I say it? は怒って何度も同じ注意をする時の定番表現。[cite: 15]"},
+{"en": "Don't you touch that piano! Not ever!", "jp": "そのピアノに触るな！ 二度とな！[cite: 15]", "note": "Not ever は Never の強い強調。[cite: 15]"},
+{"en": "Let me play for you. Please, Sir Duncan.", "jp": "旦那様のために弾かせてください。お願いいたします、ダンカン様。[cite: 15]", "note": "Let me play for you で「あなたのために演奏させてください」。[cite: 15]"},
+{"en": "I think I've gotten a little better than before.", "jp": "以前より少しは上達したかと存じます。[cite: 15]", "note": "get better で「（腕前や病気が）良くなる、上達する」。[cite: 15]"},
+{"en": "\"Gotten a little better,\" eh?", "jp": "『少しは上達した』だと？[cite: 15]", "note": ""},
+{"en": "The only improvement you can hope for is if you turn yourself into a metronome!", "jp": "お前が望める唯一の『上達』とは、お前自身がメトロノームに化けることくらいだ！[cite: 15]", "note": "turn oneself into... で「自らを〜に変える」。感情のない機械的な正確さしかお前には出せないという皮肉。[cite: 15]"},
+{"en": "I will attempt to recreate the melody you keep humming in your sleep, Sir Duncan.", "jp": "旦那様が眠りの中で口ずさみ続けておられる旋律を、再現してみます。[cite: 15]", "note": "attempt to do で「〜しようと試みる」。keep -ing で「〜し続ける」。recreate で「再現する」。[cite: 15]"},
+{"en": "The sounds you torture out of that piano are not music!", "jp": "お前がそのピアノから拷問するように絞り出している音は、音楽などではない！[cite: 15]", "note": "torture out of... で「〜から拷問して（無理やり）絞り出す」。下手な演奏への激しい罵倒。[cite: 15]"},
+{"en": "Damn this piece of junk!", "jp": "クソッ、このガラクタめ！[cite: 15]", "note": ""},
+{"en": "\"Just input the data,", "jp": "『データを入力するだけで、[cite: 15]", "note": ""},
+{"en": "and you can create infinite melodies with the push of a button!\"", "jp": "ボタン一つで無限の旋律を生み出せます！』だと！？[cite: 15]", "note": "with the push of a button で「ボタンを押すだけで」という家電やAIの謳い文句。[cite: 15]"},
+{"en": "That's not music at all! It's just sounds with no heart to it!", "jp": "そんなものは音楽などではない！ 心（魂）の通っていないただの音の塊だ！[cite: 15]", "note": "with no heart to it で「心・魂が通っていない」。[cite: 15]"},
+{"en": "You will break the machines if you continue.", "jp": "そのまま続けられますと、機材（電子楽器）が壊れてしまいます。[cite: 15]", "note": ""},
+{"en": "Oh! Trying to protect your own kind, is that it?", "jp": "おお！ 同類（機械仲間）を庇おうというのか、そういうことか？[cite: 15]", "note": "protect one's own kind で「同類（仲間）を保護する」。Is that it? で「そういうことか？」。[cite: 15]"},
+{"en": "I'll ask again. How many of your own kind did you destroy on the battlefield?", "jp": "もう一度聞くぞ。お前は戦場で、何体の同類（ロボット）を破壊したのだ？[cite: 15]", "note": ""},
+{"en": "Take off the cape, you cast-iron hypocrite!", "jp": "マントを脱げ、この鋳鉄の偽善者め！[cite: 15]", "note": "cast-iron は「鋳鉄の、頑丈な」。hypocrite は「偽善者」。鉄で作られた頑丈な体に引っ掛けた罵倒。[cite: 15]"},
+{"en": "Show the world your hideous weapon of a body!", "jp": "その醜悪な兵器そのものの体を世界に晒すのだ！[cite: 15]", "note": "weapon of a body は「兵器のような体、兵器そのものの体」という強調表現。[cite: 15]"},
+{"en": "How many did you kill? Give me the number! How many notches carved into your side?", "jp": "何体殺した？ 数字を言え！ お前の横腹には幾つの撃墜刻印（ノッチ）が刻まれているのだ！[cite: 15]", "note": "notch carved into... は撃墜数や殺人数を銃や体に「刻んだノッチ（傷跡）」。[cite: 15]"},
+{"en": "Ha! You're a docile one, aren't you? A weapon of mass destruction", "jp": "ハッ！ お前はおとなしい奴だな？ 滅多殺しの大量破壊兵器のくせに、[cite: 15]", "note": "docile は「おとなしい、従順な」。weapon of mass destruction は「大量破壊兵器」。[cite: 15]"},
+{"en": "programmed to behave in front of his master, is that it?", "jp": "主人の前では行儀よく振る舞うようプログラムされている、そういうことか？[cite: 15]", "note": "behave は「行儀よく振る舞う、おとなしくする」。[cite: 15]"},
+{"en": "All right, then.", "jp": "いいだろう。[cite: 15]", "note": ""},
+{"en": "I'm going to give you some data about me that I guarantee isn't rolling around in that head of yours.", "jp": "お前のその頭の中に転がっていないことを私が保証する、私自身の『データ』を教えてやろう。[cite: 15]", "note": "I guarantee... で「〜であることを保証する、約束する」。roll around in... で「〜の中で転がっている」。[cite: 15]"},
+{"en": "It's the reason I moan in my sleep in the dead of night.", "jp": "私が真夜中に眠りながらうなされる理由だ。[cite: 15]", "note": "in the dead of night は「真夜中に、草木も眠る丑三つ時に」という詩的イディオム。[cite: 15]"},
+{"en": "The nightmare I've had for years now.", "jp": "何年もの間、私を苛んできた悪夢だ。[cite: 15]", "note": ""},
+{"en": "Not a dream, but the life that brought me to this. Truth from long ago.", "jp": "夢などではない、私をこのような姿（境遇）に至らせた人生そのものだ。遥か昔の真実なのだ。[cite: 15]", "note": "bring someone to this で「（人）をこのような悲惨な状態に至らせる」。[cite: 15]"},
+{"en": "The world knows me as Paul Duncan,", "jp": "世界は私のことをポール・ダンカンとして知っているが、[cite: 15]", "note": ""},
+{"en": "but my real name is Paulo Holy.", "jp": "私の本名はパウロ・ホリという。[cite: 15]", "note": ""},
+{"en": "I was born into poverty in Bohemia.", "jp": "私はボヘミアの貧困の家に生まれた。[cite: 15]", "note": "be born into poverty で「貧困の家に生まれる」。[cite: 15]"},
+{"en": "I can't remember my father. He died when I was young.", "jp": "父親の記憶はない。私が幼い頃に死んだ。[cite: 15]", "note": ""},
+{"en": "I was born with a chronic illness.", "jp": "私は生まれつき持病（慢性疾患）を抱えていた。[cite: 15]", "note": "chronic illness は「持病、慢性疾患」。[cite: 15]"},
+{"en": "And even with thick glasses, my eyesight was always poor.", "jp": "そして分厚い眼鏡をかけていても、視力は常に極めて悪かった。[cite: 15]", "note": "eyesight is poor で「視力が悪い」。[cite: 15]"},
+{"en": "Singing songs was my only joy in life.", "jp": "歌を歌うことだけが、私の人生における唯一の喜びだった。[cite: 15]", "note": ""},
+{"en": "My mother, she was a beauty.", "jp": "私の母親は、大変な美しい人だった。[cite: 15]", "note": ""},
+{"en": "Even at her most threadbare, men would turn and watch her walk down the street.", "jp": "たとえどれほど貧しくみすぼらしい身なりをしていても、男たちは振り返って彼女が通りを歩く姿を見つめたものだ。[cite: 15]", "note": "threadbare は「（服などが）すり減った、みすぼらしい、糸のほつれた」。[cite: 15]"},
+{"en": "One approached her. He was a member of the nouveau-riche.", "jp": "一人の男が彼女に近づいてきた。成金（新興富裕層）の一人だった。[cite: 15]", "note": "nouveau-riche（ヌーヴォー・リッシュ）はフランス語由来の「成金、新興成金」。[cite: 15]"},
+{"en": "And she, my mother, fell prey to a greed that poisoned her heart.", "jp": "そして私の母は、その心を毒した強欲の犠牲（毒牙）となったのだ。[cite: 15]", "note": "fall prey to... で「〜の犠牲になる、〜の毒牙にかかる」という重要文学表現。[cite: 15]"},
+{"en": "Sick as I was, she must have thought me such a burden.", "jp": "病弱だった私は、母にとって大きな重荷に思えたに違いない。[cite: 15]", "note": "Sick as I was は「いくら病弱だったとはいえ（Though I was sick）」という譲歩倒置構文。burden は「重荷、負担」。[cite: 15]"},
+{"en": "Looking back, that has to be the reason why she did what she did.", "jp": "振り返ってみれば、それこそが母があのような行動に出た理由に違いない。[cite: 15]", "note": "Looking back は「振り返ってみると」。that has to be... で「〜に違いない」。[cite: 15]"},
+{"en": "The reason why she threw her own child away!", "jp": "自分の実の子供を投げ捨てた（見捨てた）理由なのだ！[cite: 15]", "note": "throw away は「（ゴミなどを）捨てる、（我が子を）見捨てる」。[cite: 15]"},
+{"en": "Out of nowhere, I was shipped off to a boarding school in England.", "jp": "何の前触れもなく、私はイギリスの全寮制学校へと追い払われた。[cite: 15]", "note": "Out of nowhere で「突然、青天の霹靂で」。ship off で「（船や列車で遠くに）送り出す、追いやる」。boarding school は「全寮制学校」。[cite: 15]"},
+{"en": "The other boys were cruel,", "jp": "周りの少年たちは残酷で、[cite: 15]", "note": ""},
+{"en": "and a weakling such as myself was in no place to fight back.", "jp": "私のような弱虫（病弱な者）には、言い返す（やり返す）すべなど一切なかった。[cite: 15]", "note": "weakling は「弱虫、病弱な人」。be in no position/place to do で「〜できる立場・状況にない」。fight back で「言い返す、反撃する」。[cite: 15]"},
+{"en": "But through the worst of it, I clung to my music studies like a drowning man.", "jp": "だが最悪の苦痛の中でも、私は溺れる者が藁をも掴むように音楽の勉強に縋りついた。[cite: 15]", "note": "cling to... で「〜にしっかりと送がみつく、執着する」。like a drowning man で「藁をも掴む思いで」。[cite: 15]"},
+{"en": "The long nights came at a price.", "jp": "夜更かしの代償はすぐにやってきた。[cite: 15]", "note": "come at a price で「（代償・犠牲を）伴う、ツケが回ってくる」。[cite: 15]"},
+{"en": "I soon developed a fever I couldn't shake. Even my beloved music slipped from my grasp.", "jp": "すぐに下がらぬ高熱を発症し、愛する音楽さえも私の手からすり抜けていった。[cite: 15]", "note": "a fever I couldn't shake で「振り払えない（下がらない）高熱」。slip from one's grasp で「（手・把握から）すり抜ける」。[cite: 15]"},
+{"en": "I was sent from hospital ward to hospital ward,", "jp": "私は病棟から病棟へとたらい回しにされ、[cite: 15]", "note": "hospital ward は「病棟、病室」。[cite: 15]"},
+{"en": "but every day saw me grow weaker.", "jp": "日が経つにつれて弱っていく一方だった。[cite: 15]", "note": "every day saw me grow weaker は無生物主語構文（毎日が私が弱っていくのを見た ＝ 日ごとに弱っていった）。[cite: 15]"},
+{"en": "The doctors gave up on me. And through it all, not a peep from my mother.", "jp": "医者たちは私を見放した。そしてその間ずっと、母からは一言の連絡（音沙汰）もなかった。[cite: 15]", "note": "give up on... で「〜を見放す、見捨てる」。not a peep で「（小鳥のさえずり一口ほどの）声も連絡もない、音沙汰なし」。[cite: 15]"},
+{"en": "I was dying. They knew it, and I did too.", "jp": "私は死にかけていた。医者もそれを知っていたし、私自身も悟っていた。[cite: 15]", "note": ""},
+{"en": "I would perish far from home, forgotten and forlorn.", "jp": "故郷から遠く離れた場所で、忘れ去られ、見捨てられたまま滅び去るのだと。[cite: 15]", "note": "perish は「（悲惨な死に方で）消滅する、死ぬ」。forlorn は「見捨てられた、寂しい、孤独な」。[cite: 15]"},
+{"en": "And that's when a Japanese doctor walked into my room.", "jp": "その時だ、一人の日本人医師が私の病室に入ってきたのは。[cite: 15]", "note": "手塚治虫の『ブラック・ジャック』を思わせる無免許の名医の存在が暗示されるシーン。[cite: 15]"},
+{"en": "He didn't have a license, but lost causes were his specialty.", "jp": "医師免許こそ持っていなかったが、見放された難病患者（絶望的状況）こそが彼の専門だった。[cite: 15]", "note": "lost cause は「（見込みのない）見放された案件、絶望的な状況」。specialty は「専門、得意分野」。[cite: 15]"},
+{"en": "I'm going to save your life, young man.", "jp": "私がお前の命を救ってやろう、若者よ。[cite: 15]", "note": ""},
+{"en": "But there's a chance that you go blind in the bargain.", "jp": "ただし、その引き換え（代償）に失明する可能性があるがな。[cite: 15]", "note": "in the bargain で「その上、おまけに、引き換えに」というイディオム。go blind で「失明する」。[cite: 15]"},
+{"en": "The surgery was a success.", "jp": "手術は成功した。[cite: 15]", "note": ""},
+{"en": "And yet, just as the rogue doctor had predicted,", "jp": "だが、あの闇医者（無免許医）が予言した通り、[cite: 15]", "note": "rogue doctor は「無免許医、闇医者」。predict は「予言する」。[cite: 15]"},
+{"en": "my eyes grew weaker with each passing day.", "jp": "日が経過するごとに、私の目は弱っていった。[cite: 15]", "note": "with each passing day で「日が経つにつれて」。[cite: 15]"},
+{"en": "I knew time was running out,", "jp": "残された時間が少ない（刻一刻と迫っている）ことを知っていた。[cite: 15]", "note": "time is running out で「時間が無くなってきている」。[cite: 15]"},
+{"en": "and there was so much theory left to learn. I forsook everything but the music.", "jp": "まだ学ぶべき音楽理論が山ほど残されていた。私は音楽以外のすべてを投げ捨てた（見捨てた）のだ。[cite: 15]", "note": "theory は「楽理、理論」。forsook は forsake（〜を捨てる、見捨てる）の過去形。everything but... で「〜以外のすべて」。[cite: 15]"},
+{"en": "Music was all I had left in the world.", "jp": "この世界で、私に残されたものは音楽しかなかった。[cite: 15]", "note": ""},
+{"en": "Play it again! Quickly, now!", "jp": "もう一度弾け！ 早くするんだ！[cite: 15]", "note": ""},
+{"en": "Not yet! Not yet! Not yet!", "jp": "まだだ！ まだ見えなくなるな！[cite: 15]", "note": ""},
+{"en": "And then,", "jp": "そして…[cite: 15]", "note": ""},
+{"en": "the darkness was complete.", "jp": "暗闇は完全なものとなった（完全に失明した）。[cite: 15]", "note": ""},
+{"en": "A few years later, I was told my mother had died.", "jp": "数年後、母が死んだと知らされた。[cite: 15]", "note": ""},
+{"en": "Her wealthy suitor never did bother to make an honest woman out of her.", "jp": "彼女の金持ちの求婚者は、ついに母と正式に結婚（籍を入れる）しようとはしなかった。[cite: 15]", "note": "suitor は「求婚者、言い寄り男」。make an honest woman out of someone は「（内縁の女性などと）正式に結婚して世間に顔が立つようにする」という古典的な口語イディオム。[cite: 15]"},
+{"en": "They told me she was alone when the end came.", "jp": "最期が訪れた時、母は孤独だったと聞かされた。[cite: 15]", "note": ""},
+{"en": "Abandoned, as I had been.", "jp": "見捨てられたのだ、私がそうされたように。[cite: 15]", "note": "Abandoned で「見捨てられた」。as I had been [abandoned] の省略。[cite: 15]"},
+{"en": "I worked hard! When his fortunes fell, I bought her lover's castle. All of this!", "jp": "私は死ぬ気で働いた！ 男の財産が没落した時、私は愛人の城を買い取ったのだ。この城のすべてをな！[cite: 15]", "note": "fortune fell で「財産が傾く、没落する」。[cite: 15]"},
+{"en": "Paulo Holy had become the genius Paul Duncan.", "jp": "パウロ・ホリは、天才ポール・ダンカンとなった。[cite: 15]", "note": ""},
+{"en": "I became maestro of the music world and took this as my reward!", "jp": "楽壇のマエストロ（巨匠）となり、この城を我が勝利の報酬として手に入れたのだ！[cite: 15]", "note": "maestro は「巨匠、マエストロ」。reward は「報酬、ご褒美」。[cite: 15]"},
+{"en": "Look, Mother!", "jp": "見ろ、母さん！[cite: 15]", "note": ""},
+{"en": "This is what you wanted, right? All this comfort and wealth.", "jp": "これがお前の欲しかったものなんだろ？ このすべての快適さと富が！[cite: 15]", "note": "comfort and wealth で「快適さと富」。[cite: 15]"},
+{"en": "You threw your child away for the chance to have it! Well, here it is!", "jp": "これを手に入れる機会のために自分の子供を投げ捨てたのだろ！ ほら見ろ、ここにあるぞ！[cite: 15]", "note": ""},
+{"en": "I prevailed! And now, Mother, I'm going to pay homage to all the riches you squandered.", "jp": "私が勝利したのだ！ そして今や母さん、お前が浪費しドブに捨てたすべての豊かさに、私はオマージュ（賛辞）を捧げるのだ。[cite: 15]", "note": "prevail は「（困難に打ち勝って）勝利する、打ち勝つ」。pay homage to... で「〜に敬意を払う、オマージュを捧げる」。squander は「（金や時間・機会を）浪費する、ドブに捨てる」。[cite: 15]"},
+{"en": "The beautiful hues of the homeland you deserted!", "jp": "お前が見捨てて逃げ出した、故郷の美しい色彩にな！[cite: 15]", "note": "hue は「色合い、色彩」。desert は「（故郷や家族を）見捨てる、見捨てる」。[cite: 15]"},
+{"en": "I will take those sights that live in my memory and paint them into song.", "jp": "私の記憶の中に息づくあの光景を取り出し、曲へと描き出してみせる。[cite: 15]", "note": ""},
+{"en": "I will show you priceless things that never should have been cast aside, and you will know your mistake!", "jp": "決して投げ捨ててはならなかった『プライスレスな（かけがえのない）もの』をお前に突き付け、己の間違いを思い知らせてやる！[cite: 15]", "note": "priceless は「値段がつけられないほど貴重な」。never should have been + 過去分詞 で「決して〜されるべきではなかった（後悔）」。cast aside で「投げ捨てる、省みる」。[cite: 15]"},
+{"en": "Sir Duncan, your anger towards your mother is--", "jp": "ダンカン様、お母様に対するそのお怒りは…[cite: 15]", "note": ""},
+{"en": "Silence!", "jp": "黙れ！[cite: 15]", "note": "Silence! 一言で相手を黙らせる強い一喝。[cite: 15]"},
+{"en": "I'll give you high marks, but you leave here tomorrow.", "jp": "執事としての点数は高く評価してやるが、お前は明日ここを去れ。[cite: 15]", "note": "give someone high marks で「（人）に高い評価をつける」。[cite: 15]"},
+{"en": "That is why I'd like to learn to play the piano.", "jp": "（過去の回想）だからこそ、私はピアノを学びたいのです。[cite: 15]", "note": ""},
+{"en": "I do not want to belong on the battlefield.", "jp": "（過去の回想）私はもう、戦場に居るべき存在でありたくないのです。[cite: 15]", "note": ""},
+{"en": "I guess he did get a little bit better.", "jp": "少しは上達したようだな。[cite: 15]", "note": "did get a little bit better の did は動詞の強調（実際に〜した）。ノース2号の拙いピアノの音色を聞いて、ツンデレなダンカンが密かに呟く一言。[cite: 15]"},
+{"en": "Charging his power supply before he leaves in the morning, eh?", "jp": "朝出ていく前に、バッテリー（電源）を充電しているのか？[cite: 15]", "note": "Charge one's power supply で「バッテリーを充電する」。[cite: 15]"},
+{"en": "Just like a machine.", "jp": "まったく、機械そのものだな。[cite: 15]", "note": ""},
+{"en": "Is the robot having a nightmare?", "jp": "ロボットが悪夢をうなされているというのか？[cite: 15]", "note": "have a nightmare で「悪夢を見る」。戦場の悲惨なトラウマでうなされるノース2号に気づくダンカン。[cite: 15]"},
+{"en": "So they can dream. I didn't know that about you.", "jp": "ロボットも夢を見るのか。お前にそんな面があるとは知らなかったな。[cite: 15]", "note": "ダンカンがノース2号を単なる「機械・兵器」ではなく、感情と魂を持つ存在として理解し始める重要なラストの一言。[cite: 15]"}
+ ];
+
+ // ---- データマイグレーションと初期化 ----
+ const savedEvaluated = localStorage.getItem('pluto_1_3_evaluated');
+ const savedDates = localStorage.getItem('pluto_1_3_dates');
+ const savedSrs = localStorage.getItem('pluto_1_3_srs');
+
+ let evaluatedCards = savedEvaluated ? JSON.parse(savedEvaluated) : new Array(cardsData.length).fill(false);
+ let answerDates = savedDates ? JSON.parse(savedDates) : new Array(cardsData.length).fill(null);
+ 
+ let srsData = savedSrs ? JSON.parse(savedSrs) : new Array(cardsData.length).fill(null).map(() => ({
+ interval: 0,
+ ease: 2.5,
+ repetitions: 0,
+ nextReview: null
+ }));
+
+ let currentCardIndex = 0;
+ let correctCount = evaluatedCards.filter(Boolean).length;
+ let isFront = true;
+ let currentMode = 'all'; // 'all', 'unanswered', 'review', 'incorrect'
+
+ const frontSide = document.getElementById('front-side');
+ const backSide = document.getElementById('back-side');
+ const frontEngContent = document.getElementById('front-eng-content');
+ const backEngContent = document.getElementById('back-eng-content');
+ const japContent = document.getElementById('jap-content');
+ const noteContent = document.getElementById('note-content');
+ 
+ const controlsFront = document.getElementById('controls-front');
+ const controlsBack = document.getElementById('controls-back');
+ const progressText = document.getElementById('progress-text');
+ const scoreText = document.getElementById('score-text');
+ const playBtn = document.getElementById('play-audio-btn');
+ const dateBadge = document.getElementById('date-badge');
+ const srsBadge = document.getElementById('srs-badge');
+ const modeIndicator = document.getElementById('mode-indicator');
+
+ function saveProgress() {
+ localStorage.setItem('pluto_1_3_evaluated', JSON.stringify(evaluatedCards));
+ localStorage.setItem('pluto_1_3_dates', JSON.stringify(answerDates));
+ localStorage.setItem('pluto_1_3_srs', JSON.stringify(srsData));
+ }
+
+ // YYYY-MM-DD 形式で日付を取得（比較用）
+ function getTodayStringFormatted() {
+ const d = new Date();
+ const y = d.getFullYear();
+ const m = String(d.getMonth() + 1).padStart(2, '0');
+ const day = String(d.getDate()).padStart(2, '0');
+ return `${y}-${m}-${day}`;
+ }
+
+ // 指定日数を足した日付文字列を返す
+ function addDaysToDate(days) {
+ const d = new Date();
+ d.setDate(d.getDate() + days);
+ const y = d.getFullYear();
+ const m = String(d.getMonth() + 1).padStart(2, '0');
+ const day = String(d.getDate()).padStart(2, '0');
+ return `${y}-${m}-${day}`;
+ }
+
+ function getVisibleIndices() {
+ let indices = [];
+ const today = getTodayStringFormatted();
+ 
+ for (let i = 0; i < cardsData.length; i++) {
+ if (currentMode === 'all') {
+ indices.push(i);
+ } else if (currentMode === 'unanswered') {
+ if (!answerDates[i]) indices.push(i);
+ } else if (currentMode === 'incorrect') {
+ if (answerDates[i] && !evaluatedCards[i]) indices.push(i);
+ } else if (currentMode === 'review') {
+ // 次回の復習日が設定されていて、かつ今日以前の場合
+ if (srsData[i].nextReview && srsData[i].nextReview <= today) {
+ indices.push(i);
+ }
+ }
+ }
+ return indices;
+ }
+
+ function updateUI() {
+ let indices = getVisibleIndices();
+ 
+ if (indices.length === 0) {
+ frontSide.style.display = 'flex';
+ backSide.style.display = 'none';
+ controlsFront.style.display = 'none';
+ controlsBack.style.display = 'none';
+ frontEngContent.innerHTML = "<div class='empty-state'>🎉 このモードの対象カードはありません！<br>上のボタンから別のモードに切り替えてね。</div>";
+ dateBadge.style.display = 'none';
+ srsBadge.style.display = 'none';
+ playBtn.style.display = 'none';
+ progressText.textContent = `- / ${cardsData.length}`;
+ scoreText.textContent = `正解数: ${correctCount}`;
+ return;
+ }
+
+ dateBadge.style.display = 'inline-block';
+ srsBadge.style.display = 'block';
+ playBtn.style.display = 'flex';
+
+ if (!indices.includes(currentCardIndex)) {
+ currentCardIndex = indices[0];
+ }
+
+ let pos = indices.indexOf(currentCardIndex);
+ progressText.textContent = `${pos + 1} / ${indices.length} (全${cardsData.length}問)`;
+ scoreText.textContent = `正解数: ${correctCount}`;
+
+ let dateStr = answerDates[currentCardIndex];
+ dateBadge.textContent = dateStr ? `最終回答日：${dateStr}` : `最終回答日：未回答`;
+
+ let srs = srsData[currentCardIndex];
+ if (srs.nextReview) {
+ srsBadge.textContent = `次回予定日: ${srs.nextReview} (連続正解: ${srs.repetitions}回)`;
+ } else {
+ srsBadge.textContent = `まだSRSに登録されていません`;
+ }
+
+ if (isFront) {
+ frontSide.style.display = 'flex';
+ backSide.style.display = 'none';
+ controlsFront.style.display = 'flex';
+ controlsBack.style.display = 'none';
+ } else {
+ frontSide.style.display = 'none';
+ backSide.style.display = 'flex';
+ controlsFront.style.display = 'none';
+ controlsBack.style.display = 'flex';
+ }
+
+ frontEngContent.textContent = cardsData[currentCardIndex].en;
+ backEngContent.textContent = cardsData[currentCardIndex].en;
+ japContent.textContent = cardsData[currentCardIndex].jp;
+ 
+ if (cardsData[currentCardIndex].note) {
+ noteContent.style.display = 'block';
+ noteContent.textContent = "💡 " + cardsData[currentCardIndex].note;
+ } else {
+ noteContent.style.display = 'none';
+ }
+ }
+
+ function flipCard() {
+ isFront = !isFront;
+ updateUI();
+ }
+
+ function returnToFront() {
+ isFront = true;
+ updateUI();
+ }
+
+ function advanceCard(forward) {
+ let indices = getVisibleIndices();
+ if (indices.length === 0) {
+ updateUI();
+ return;
+ }
+
+ let pos = indices.indexOf(currentCardIndex);
+ 
+ if (pos !== -1) {
+ if (forward) {
+ currentCardIndex = indices[(pos + 1) % indices.length];
+ } else {
+ // 前へボタンのループ処理
+ currentCardIndex = indices[(pos - 1 + indices.length) % indices.length];
+ }
+ } else {
+ let nextIdx = indices.find(i => i > currentCardIndex);
+ currentCardIndex = nextIdx !== undefined ? nextIdx : indices[0];
+ }
+ 
+ isFront = true;
+ updateUI();
+ }
+
+ function nextCard() { advanceCard(true); }
+ function prevCard() { advanceCard(false); }
+
+ function markCorrect() {
+ // 従来のカウント用処理
+ let wasCorrect = evaluatedCards[currentCardIndex];
+ if (!wasCorrect) {
+ correctCount++;
+ evaluatedCards[currentCardIndex] = true;
+ }
+ answerDates[currentCardIndex] = getTodayStringFormatted();
+
+ // SRS (SM-2) アルゴリズムによる「完璧！」の処理
+ let cardSrs = srsData[currentCardIndex];
+ cardSrs.repetitions += 1;
+ 
+ if (cardSrs.repetitions === 1) {
+ cardSrs.interval = 1; // 初回は1日後
+ } else if (cardSrs.repetitions === 2) {
+ cardSrs.interval = 6; // 2回目は6日後
+ } else {
+ cardSrs.interval = Math.round(cardSrs.interval * cardSrs.ease);
+ }
+ cardSrs.nextReview = addDaysToDate(cardSrs.interval);
+
+ saveProgress();
+ nextCard();
+ }
+
+ function markIncorrect() {
+ // 従来のカウント用処理
+ let wasCorrect = evaluatedCards[currentCardIndex];
+ if (wasCorrect) {
+ correctCount--;
+ evaluatedCards[currentCardIndex] = false;
+ }
+ answerDates[currentCardIndex] = getTodayStringFormatted();
+
+ // SRS (SM-2) アルゴリズムによる「覚えてない」の処理
+ let cardSrs = srsData[currentCardIndex];
+ cardSrs.repetitions = 0; // 連続正解リセット
+ cardSrs.interval = 1; // 翌日に再出題
+ cardSrs.ease = Math.max(1.3, cardSrs.ease - 0.2); // 定着度（難易度係数）を下げる
+ cardSrs.nextReview = addDaysToDate(cardSrs.interval);
+
+ saveProgress();
+ nextCard();
+ }
+
+ function setMode(mode) {
+ currentMode = mode;
+ 
+ const modeNames = {
+ 'all': '📁 全問',
+ 'unanswered': '🆕 未回答',
+ 'review': '📅 今日の復習',
+ 'incorrect': '🎯 未正解'
+ };
+ modeIndicator.textContent = `現在のモード：${modeNames[mode]}`;
+
+ let indices = getVisibleIndices();
+ if (indices.length > 0) {
+ currentCardIndex = indices[0];
+ }
+ isFront = true;
+ updateUI();
+ }
+
+ function jumpToUnanswered() {
+ let indices = getVisibleIndices();
+ if (indices.length === 0) return;
+
+ let targetIndex = indices.find(index => !answerDates[index]);
+
+ if (targetIndex !== undefined) {
+ currentCardIndex = targetIndex;
+ } else {
+ currentCardIndex = indices[0];
+ }
+ 
+ isFront = true;
+ updateUI();
+ }
+
+ function speakText() {
+ const textToSpeak = cardsData[currentCardIndex].en;
+ window.speechSynthesis.cancel();
+ const utterance = new SpeechSynthesisUtterance(textToSpeak);
+ utterance.lang = 'en-US';
+ utterance.rate = 0.9;
+ window.speechSynthesis.speak(utterance);
+ }
+
+ playBtn.addEventListener('click', speakText);
+
+ updateUI();
+ </script>
+</body>
+</html>
